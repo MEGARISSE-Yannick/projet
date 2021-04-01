@@ -8,14 +8,15 @@
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="buttons">
-                    <a class="button is-dark" href="photos.php">
-                        <strong>Image</strong>
+                    <a class="button is-dark" href="compte.php">
+                        <strong>Compte</strong>
                     </a>
-                    <a class="button is-dark" href="ajout_photo.php">
-                        Ajout
+                    <a class="button is-dark" href="panier.php">
+                    <i class="fas fa-cart-plus"></i>
+Panier
                     </a>
-                    <a class="button is-dark" href="suppresion_astre.php">
-                        Suppprimers
+                    <a class="button is-dark" href="ajout_articles.php">
+                        Ajouter des articles
                     </a>
                 </div>
             </div>

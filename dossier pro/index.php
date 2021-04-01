@@ -30,14 +30,14 @@
     echo '<div class="container2">';
 
     while ($donnees = $reponse->fetch()) {     
-        echo '<a href="article_detail.php?id="'.$donnees['id'].'>';
+        echo '<a href="article_detail.php?id='.$donnees['id'].'">';
         echo '<div class="article">';
         echo '<div class="nom">' . $donnees['nom'] . '</div>';
         echo '<div class="miniature"><img class="img" src="' . $donnees['image'] . '"></div>';
         echo '<div class="description">';
         echo '<span>'.$donnees['description'].'</span>';
-        echo '<span>'.$donnees['prix'].'€</span>';
         echo '</div>';
+        echo '<div class="prix">'.$donnees['prix'].'€</div>';
         echo '</div></a>';
 
     }
@@ -45,7 +45,6 @@
       ?>
     <!-- image en premiere vue -->
    
-    
   
       
 </body>
