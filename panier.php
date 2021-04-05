@@ -1,133 +1,118 @@
 <?php
-/**
- * Traitement
- */
-
 session_start();
+include_once("fonctions-panier.php");
 
-if(isset($_GET['articles_list']) && !empty($_GET['articles_list'])) {
+$erreur = false;
 
-    // Du formulaire
-    $new_articles = $_GET['articles_list'];
+$action = (isset($_POST['action'])? $_POST['action']:  (isset($_GET['action'])? $_GET['action']:null )) ;
+if($action !== null)
+{
+   if(!in_array($action,array('ajout', 'suppression', 'refresh')))
+   $erreur=true;
 
-    // De la session
-    if(isset($_SESSION['articles'])) {
-        $articles = $_SESSION['articles'];
-    } else {
-        $articles = array();
-    }
+   //récupération des variables en POST ou GET
+   $l = (isset($_POST['l'])? $_POST['l']:  (isset($_GET['l'])? $_GET['l']:null )) ;
+   $p = (isset($_POST['p'])? $_POST['p']:  (isset($_GET['p'])? $_GET['p']:null )) ;
+   $q = (isset($_POST['q'])? $_POST['q']:  (isset($_GET['q'])? $_GET['q']:null )) ;
 
-    foreach ($new_articles as $article) {
+   //Suppression des espaces verticaux
+   $l = preg_replace('#\v#', '',$l);
+   //On vérifie que $p est un float
+   $p = floatval($p);
 
-        // Si il existe déjà
-        if(isset($articles[$article])) {
-
-            $articles[$article] = $articles[$article] + 1;
-
-        } else {
-
-            $articles[$article] = 1;
-
-        }
-
-    }
-
-    // On le sauvegarde
-    $_SESSION['articles'] = $articles;
-
-    print_r($articles);
-
+   //On traite $q qui peut être un entier simple ou un tableau d'entiers
+    
+   if (is_array($q)){
+      $QteArticle = array();
+      $i=0;
+      foreach ($q as $contenu){
+         $QteArticle[$i++] = intval($contenu);
+      }
+   }
+   else
+   $q = intval($q);
+    
 }
 
-/**
- * AFFICHAGE
- */
-?>
-<!DOCTYPE html>
-<html>
+if (!$erreur){
+   switch($action){
+      Case "ajout":
+         ajouterArticle($l,$q,$p);
+         break;
 
+      Case "suppression":
+         supprimerArticle($l);
+         break;
+
+      Case "refresh" :
+         for ($i = 0 ; $i < count($QteArticle) ; $i++)
+         {
+            modifierQTeArticle($_SESSION['panier']['libelleProduit'][$i],round($QteArticle[$i]));
+         }
+         break;
+
+      Default:
+         break;
+   }
+}
+
+echo '<?xml version="1.0" encoding="utf-8"?>';?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
-    <title>Checkboxes</title>
-    <meta charset="utf-8" />
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<title>Votre panier</title>
 </head>
-
 <body>
+<?php include("navbar.php"); ?>
 
-<div class="container">
 
-    <pre><?php print_r($_SESSION['articles']); ?></pre>
+<form method="post" action="panier.php">
+<table style="width: 400px">
+    <tr>
+        <td colspan="4">Votre panier</td>
+    </tr>
+    <tr>
+        <td>Libellé</td>
+        <td>Quantité</td>
+        <td>Prix Unitaire</td>
+        <td>Action</td>
+    </tr>
 
-    <div class="col-md-6">
 
-        <form action="" method="get" id="articles">
+    <?php
+    if (creationPanier())
+    {
+       $nbArticles=count($_SESSION['panier']['libelleProduit']);
+       if ($nbArticles <= 0)
+       echo "<tr><td>Votre panier est vide </ td></tr>";
+       else
+       {
+          for ($i=0 ;$i < $nbArticles ; $i++)
+          {
+             echo "<tr>";
+             echo "<td>".htmlspecialchars($_SESSION['panier']['libelleProduit'][$i])."</ td>";
+             echo "<td><input type=\"number\" size=\"4\" name=\"q[]\" value=\"".htmlspecialchars($_SESSION['panier']['qteProduit'][$i])."\"/></td>";
+             echo "<td>".htmlspecialchars($_SESSION['panier']['prixProduit'][$i])."</td>";
+             echo "<td><a href=\"".htmlspecialchars("panier.php?action=suppression&l=".rawurlencode($_SESSION['panier']['libelleProduit'][$i]))."\">XX</a></td>";
+             echo "</tr>";
+          }
 
-            <h1>Catalogue</h1>
+          echo "<tr><td colspan=\"2\"> </td>";
+          echo "<td colspan=\"2\">";
+          echo "Total : ".MontantGlobal();
+          echo "</td></tr>";
 
-            <hr>
+          echo "<tr><td colspan=\"4\">";
+          echo "<input type=\"submit\" value=\"Rafraichir\"/>";
+          echo "<input type=\"hidden\" name=\"action\" value=\"refresh\"/>";
 
-            <div>
-                <label for="articles_list">Ajouter un article</label>
-                <select name="articles_list[]" id="articles_list" class="form-control" multiple>
-                <?php 
-    $bdd = new PDO('mysql:host=127.0.0.1;dbname=monarduino974;charset=utf8', 'root', 'Simplon974', 
-    array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-    $reponse = $bdd->query('SELECT * FROM articles');
-
-    while ($donnees = $reponse->fetch()) {     
-        echo '<option>' . $donnees['nom'] . '</option>';
-
+          echo "</td></tr>";
+       }
     }
-      ?>
-            
-            </select>
-            </div>
-
-            <hr>
-
-            <div class="text-right">
-                <button type="submit" class="btn btn-primary">Ajouter!</button>
-            </div>
-
-        </form>
-
-    </div>
-
-    <div class="col-md-6">
-
-        <h1>Liste des produits</h1>
-
-        <hr>
-
-        <form action="" method="get">
-
-            <?php if(isset($_SESSION['articles'])) { ?>
-
-                <ul>
-                    <?php foreach ($_SESSION['articles'] as $name=>$quantite) { ?>
-                        <li>
-                            <?php echo $name;  ?> - <?php echo $quantite; ?>
-                            <input type="submit" class="btn btn-danger" name="<?php echo $name;  ?>" value="-">
-                            <input type="submit" class="btn btn-success" name="<?php echo $name;  ?>" value="+">
-                        </li>
-                    <?php } ?>
-                </ul>
-
-            <?php } else { ?>
-
-                <h3>Aucun article dans le panier</h3>
-
-            <?php } ?>
-
-        </form>
-
-
-
-    </div>
-
-</div>
+    ?>
+</table>
+</form>
+<?php include("footer.php"); ?>
 
 </body>
-
-</html> 
+</html>

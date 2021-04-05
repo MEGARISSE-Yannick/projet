@@ -53,7 +53,7 @@
       </form>
     </div>
     <div class="column">
-    <?php $bdd = new PDO('mysql:host=127.0.0.1;dbname=nasa;charset=utf8', 'Root', 'Simplon974', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+    <?php $bdd = new PDO('mysql:host=127.0.0.1;dbname=nasa;charset=utf8', 'Root', '', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
             $reponse = $bdd->query('SELECT * FROM hubble');
             while ($donnees = $reponse->fetch()) {
                 echo '<form action="#" method="post">';
@@ -87,7 +87,7 @@
     </div>
     <div class="column">
     <?php 
-    $bdd = new PDO('mysql:host=127.0.0.1;dbname=nasa;charset=utf8', 'Root', 'Simplon974', 
+    $bdd = new PDO('mysql:host=127.0.0.1;dbname=nasa;charset=utf8', 'Root', '', 
     array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
     $reponse = $bdd->query('SELECT * FROM hubble');
     while ($donnees = $reponse->fetch()) {
@@ -103,6 +103,7 @@
     ?>
     </div>
 
+    <?php include("footer.php"); ?>
 
   </div>
 </body>

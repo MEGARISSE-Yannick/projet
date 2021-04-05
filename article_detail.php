@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hubble_NASA</title>
+    <title>artile details</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
@@ -24,14 +24,18 @@
                Sur la boutique MonArduino974</p>
         </div>
     </section>
+   
     <?php 
-    $id = $_GET['id'];
-    $bdd = new PDO('mysql:host=127.0.0.1;dbname=monarduino974;charset=utf8', 'root', 'Simplon974', 
-    array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-    $reponse = $bdd->query('SELECT * FROM articles WHERE id="'.$id.'"');
-    echo '<div class="container2">';
+        $id = $_GET['id'];
+        $bdd = new PDO('mysql:host=127.0.0.1;dbname=monarduino974;charset=utf8', 'root', '', 
+        array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+        $reponse = $bdd->query('SELECT * FROM articles WHERE id="'.$id.'"');
+        echo '<div class="container2">';
 
-    while ($donnees = $reponse->fetch()) {     
+        while ($donnees = $reponse->fetch()) {     
+        $p=$donnees['prix'];
+        $q= $_POST;
+        $l=$donnees['nom'];
         echo '<div class="infos">';        
         echo '<div class="miniature_detail"><img class="img" src="' . $donnees['image'] . '"></div>';
 
@@ -45,23 +49,34 @@
         echo $donnees['speTech'];
         echo '</div>';
         echo "<form action=\"#\" method=\"post\">\n";
-        echo "        <div class=\"quantity\">\n";
-        echo "              <input type=\"number\" min=\"1\" max=\"9\" step=\"1\" value=\"1\">\n";
-        echo "            </div>\n";
-        echo "            <button class=\"button is-warning is-light\">\n";
-        echo "            <i class=\"fas fa-cart-plus\"></i>Ajouter au panier</button>\n";
+        echo "            <button name=\"submit\"class=\"button is-warning is-light\">\n";
+        echo "        <i class=\"fas fa-cart-plus\"></i>
+        <a href=\"panier.php?action=ajout&l=$l=QUANTITEPRODUIT&p=$p\" onclick=\"window.open(this.href, '', 'toolbar=no, location=no, directories=no, status=yes, scrollbars=yes, resizable=yes, copyhistory=no, width=600, height=350'); return false;\">Ajouter au panier</a>\n";
+        echo "            </button>\n";
+
+        echo '<input type="hidden" name="id_produit" value="' . $donnees['id'] . '">';
+        echo '<input type="hidden" name="nom" value="' . $donnees['nom'] . '">';
+        echo '<input type="hidden" name="image" value="' . $donnees['image'] . '">';
+        echo '<input type="hidden" name="prix" value="' . $donnees['prix'] . '">';
         echo "        </form>\n";
-
+        
         echo '</div>'; 
-    
+        echo $p;
 
- 
- 
-    }
-
+        }
+        if (isset($_POST["submit"])) {
+           $requete = 'INSERT INTO panier VALUES
+           (NULL, "' . $_POST['id_produit'] . '",
+           "' . $_POST['nom'] . '",
+           "' . $_POST['image'] . '",
+           "' . $_POST['prix'] . '",
+           "' . $_POST['nombre'] . '")';
+           $resultat = $bdd->query($requete);            
+        }
         echo '</div>';
       ?>
     <!-- image en premiere vue -->
+  
     <script>
 var coll = document.getElementsByClassName("collapsible");
 var i;

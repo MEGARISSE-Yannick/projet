@@ -26,8 +26,8 @@
           <?php
           $bdd = new PDO(
             'mysql:host=localhost;dbname=nasa;charset=utf8',
-            'Root',
-            'Simplon974',
+            'root',
+            '',
             array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
           $reponse = $bdd->query('SELECT * FROM hubble');
           while ($donnees = $reponse->fetch()) {
